@@ -24,12 +24,15 @@ void loop() {
     Serial.println(command);
     Serial.println("it works");
     Serial.write("hey im testing write\r\n");
-    digitalWrite(led, HIGH);
+    /*digitalWrite(led, HIGH);
     delay(1000);
     Serial.println("high");
     digitalWrite(led, LOW);
     delay(1000);
-    Serial.println("low");
+    Serial.println("low");*/
+    
+    
+
   }
   else{
     Serial.println(command);
