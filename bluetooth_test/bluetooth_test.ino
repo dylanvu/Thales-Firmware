@@ -17,7 +17,8 @@ bool oldDeviceConnected = false;
 
 // UUID 
 #define SERVICE_UUID        "af97994f-4d78-457e-8e10-05dd0ce6f680"
-#define CHARACTERISTIC_UUID "a333b197-f1a1-4d70-a452-757067b0bed6"
+#define CHARACTERISTIC_UUID_TX "a333b197-f1a1-4d70-a452-757067b0bed6"
+#define CHARACTERISTIC_UUID_RX "a5953780-748b-4857-96ce-cf31a643aeb7"
 
 // server connection
 class MyServerCallbacks: public BLEServerCallbacks{
@@ -30,10 +31,34 @@ class MyServerCallbacks: public BLEServerCallbacks{
   }
 };
 
+// receiving data from client
+class MyCallbacks: public BLECharacteristicCallbacks{
+  void onWrite(BLECharacteristic *pCharacteristic){
+    std::string receivedValue = pCharacteristic -> getValue();
+
+    if(receivedValue.length() > 0){
+      Serial.println("Receiving data...");
+      
+      Serial.print("Received Value: ");
+      for(int i = 0; i < receivedValue.length(); i++){
+        Serial.print(receivedValue[i]);
+      }
+
+      Serial.println();
+
+      if(receivedValue.find("1") != -1){
+        Serial.println("Received command 1");
+      }
+
+      Serial.println("End of receiving data");
+    }
+  }
+};
+
 // setup
 void setup() {
   // put your setup code here, to run once:
-  Serial.begin(9600);
+  Serial.begin(115200);
   pinMode(led, OUTPUT);
   pinMode(button, INPUT);
 
@@ -47,11 +72,18 @@ void setup() {
   // Create BLE Service
   BLEService *pService = pServer -> createService(SERVICE_UUID);
 
-  // Create BLE Characteristic
-  pCharacteristic = pService -> createCharacteristic(CHARACTERISTIC_UUID, BLECharacteristic::PROPERTY_READ | BLECharacteristic::PROPERTY_WRITE | BLECharacteristic::PROPERTY_NOTIFY | BLECharacteristic::PROPERTY_INDICATE);
+  // Create BLE Characteristic for Sending Data
+  //pCharacteristic = pService -> createCharacteristic(CHARACTERISTIC_UUID_TX, BLECharacteristic::PROPERTY_READ | BLECharacteristic::PROPERTY_WRITE | BLECharacteristic::PROPERTY_NOTIFY | BLECharacteristic::PROPERTY_INDICATE);
+  pCharacteristic = pService -> createCharacteristic(CHARACTERISTIC_UUID_TX, BLECharacteristic::PROPERTY_NOTIFY);
 
   // Create BLE Descriptor
   pCharacteristic -> addDescriptor(new BLE2902());
+
+  // Create BLE Characteristic for Receiving Data
+  BLECharacteristic *pCharacteristic = pService -> createCharacteristic(CHARACTERISTIC_UUID_RX, BLECharacteristic::PROPERTY_WRITE);
+
+  // Callbacks for Receiving Data
+  pCharacteristic -> setCallbacks(new MyCallbacks());
 
   // Starting the BLE Service
   pService -> start();
@@ -67,42 +99,24 @@ void setup() {
 }
 
 void loop() {
-  // put your main code here, to run repeatedly:
-  /*digitalWrite(led, HIGH);
-  delay(500);
-  digitalWrite(led, LOW);
-  delay(500);*/
-
-  //currentState = digitalRead(button);
-/*
-  if (lastState == HIGH && currentState == LOW)
-  {
-    digitalWrite(led, HIGH);
-    Serial.println("The button is pressed");
-  }
-  else if (lastState == LOW && currentState == HIGH)
-  {
-    Serial.println("The button is released");
-    digitalWrite(led, HIGH);
-  }*/
-  /*
-  if(currentState == LOW){
-    digitalWrite(led, LOW);
-    Serial.println("low");
-  }
-  else{
-    digitalWrite(led, HIGH);
-    Serial.println("high");
-  }*/
-
-  //lastState = currentState;
 
   if(deviceConnected){
-    Serial.println("Device Connected");
+    
+    Serial.println("Waiting for command...");
     std::string message = "it connects yay";
     pCharacteristic -> setValue(message);
     pCharacteristic -> notify();
-    delay(3);
+    delay(1000);
+
+    /*
+    int value = random(0, 50);
+    char stringValue[8];
+    dtostrf(value, 1, 2, stringValue);
+    pCharacteristic->setValue(stringValue);
+    pCharacteristic->notify();
+    Serial.println("Sent value: " + String(stringValue));
+    delay(1000);*/
+
   }
 
   // Disconnect
