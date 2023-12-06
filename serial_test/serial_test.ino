@@ -12,8 +12,10 @@ void setup() {
 
 void loop() {
   Serial.println("Waiting for command...");
+  int count = 0;
   while(Serial.available() == 0){
-    Serial.println("wait");
+    count++;
+    Serial.println((String)"wait" + count);
     delay(1000);
   }
 
