@@ -59,12 +59,24 @@ void loop()
 {
   
   Serial.println("Waiting for command...");
+  int count = 0;
   while(Serial.available() == 0){
     // gather heart rate data
     MAX30102.getHeartbeatSPO2();
     
+    // increment counter (in seconds)
+    count++;
+
     //Serial.print("Heart rate is : ");
-    Serial.println(MAX30102._sHeartbeatSPO2.Heartbeat);
+    if(MAX30102._sHeartbeatSPO2.Heartbeat = -1){
+      Serial.print("0");
+    }
+    else{
+      Serial.print(MAX30102._sHeartbeatSPO2.Heartbeat);
+    }
+    
+    Serial.print("*");
+    Serial.println(count);
     //Serial.println(" Times/min");
 
     delay(1000);
