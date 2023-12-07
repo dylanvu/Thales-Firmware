@@ -63,9 +63,9 @@ void loop()
     // gather heart rate data
     MAX30102.getHeartbeatSPO2();
     
-    Serial.print("Heart rate is : ");
-    Serial.print(MAX30102._sHeartbeatSPO2.Heartbeat);
-    Serial.println(" Times/min");
+    //Serial.print("Heart rate is : ");
+    Serial.println(MAX30102._sHeartbeatSPO2.Heartbeat);
+    //Serial.println(" Times/min");
 
     delay(1000);
     //Serial.println("wait");
