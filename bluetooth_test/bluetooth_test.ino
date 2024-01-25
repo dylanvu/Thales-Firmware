@@ -103,8 +103,23 @@ void loop() {
   if(deviceConnected){
     
     Serial.println("Waiting for command...");
-    std::string message = "it connects yay";
-    pCharacteristic -> setValue(message);
+    //std::string message = "it connects yay";
+    //pCharacteristic -> setValue(message);
+    //pCharacteristic -> notify();
+    //delay(1000);
+
+    std::string fake_json_data_1 = "{\"heart_rate\": 80, \"temperature\": 50}";
+
+    pCharacteristic -> setValue(fake_json_data_1);
+    pCharacteristic -> notify();
+    delay(1000);
+
+    //std::string fake_json_data_2 = "{\"heart_rate\": 100, \"temperature\": 70}";
+    int heart = 100;
+    int temp = 70;
+    std::string fake_json_data_2 = "{\"heart_rate\": " + std::to_string(heart) + ", \"temperature\": " + std::to_string(temp) + "}";
+
+    pCharacteristic -> setValue(fake_json_data_2);
     pCharacteristic -> notify();
     delay(1000);
 
