@@ -146,19 +146,6 @@ void setup()
   BLEDevice::startAdvertising();
   Serial.println("Waiting...");
 
-   // Contact Body Temperature Sensor Initializing
-  while (!Serial)
-  {
-    delay(100);
-  }
-
-  if (!temperature_sensor.begin()) 
-  {
-    Serial.println("Contact Body Temperature Sensor Init Fail!");
-    delay(1000);
-  }
-  Serial.println("Contact Body Temperature Sensor Init Success!");
-
   // Heart Rate Sensor Initializing
   Serial.println("READY");
   Wire.setPins(I2C_SDA, I2C_SCL);
@@ -172,6 +159,19 @@ void setup()
   Serial.println("Start measuring...");
   MAX30102.sensorStartCollect();
 
+   // Contact Body Temperature Sensor Initializing
+  while (!Serial)
+  {
+    delay(100);
+  }
+
+  if (!temperature_sensor.begin()) 
+  {
+    Serial.println("Contact Body Temperature Sensor Init Fail!");
+    delay(1000);
+  }
+  Serial.println("Contact Body Temperature Sensor Init Success!");
+
 }
 
 void loop()
@@ -179,10 +179,10 @@ void loop()
   if(deviceConnected){
     
     Serial.println("Waiting for command...");
-    std::string message = "it connects yay";
+    /*std::string message = "it connects yay";
     pCharacteristic -> setValue(message);
     pCharacteristic -> notify();
-    delay(1000);
+    delay(1000);*/
 
     // Heart Rate Sensor
     MAX30102.getHeartbeatSPO2();
@@ -223,6 +223,7 @@ void loop()
     oldDeviceConnected = deviceConnected;
   }
 
+  /*
   int count = 0;
   while(Serial.available() == 0){
     // gather heart rate data
@@ -248,7 +249,7 @@ void loop()
     Serial.println("");
 
     delay(1000);
-  }
+  }*/
 
   String command = Serial.readString();
   command.trim();
