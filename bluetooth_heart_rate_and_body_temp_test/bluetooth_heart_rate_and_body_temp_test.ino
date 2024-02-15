@@ -69,6 +69,9 @@ bool oldDeviceConnected = false;
 // contact body temperature variables
 Adafruit_TMP117  temperature_sensor;
 
+// touchpoint variables
+const int touchpoint = 42;
+
 // UUID 
 #define SERVICE_UUID        "af97994f-4d78-457e-8e10-05dd0ce6f680"
 #define CHARACTERISTIC_UUID_TX "a333b197-f1a1-4d70-a452-757067b0bed6"
@@ -100,8 +103,24 @@ class MyCallbacks: public BLECharacteristicCallbacks{
 
       Serial.println();
 
-      if(receivedValue.find("1") != -1){
+      // to turn on and off touchpoint
+      if(receivedValue.find("1") != -1)
+      {
+        //Serial.println("Received command 1");
+        delay(100);
+        digitalWrite(touchpoint, LOW);
+        delay(100);
+        digitalWrite(touchpoint, HIGH);
+        delay(100);
+        digitalWrite(touchpoint, LOW);
+        delay(100);
+        digitalWrite(touchpoint, HIGH);
         Serial.println("Received command 1");
+      }
+      else if(receivedValue.find("0") != -1)
+      {
+        digitalWrite(touchpoint, HIGH);
+        Serial.println("Received command 0");
       }
 
       Serial.println("End of receiving data");
@@ -145,6 +164,17 @@ void setup()
   pAdvertising -> setMinPreferred(0x0);
   BLEDevice::startAdvertising();
   Serial.println("Waiting...");
+
+  // Touchpoint Initializing
+  pinMode(touchpoint, OUTPUT);
+  digitalWrite(touchpoint, LOW);
+  delay(100);
+  digitalWrite(touchpoint, HIGH);
+  delay(100);
+  digitalWrite(touchpoint, LOW);
+  delay(100);
+  digitalWrite(touchpoint, HIGH);
+  delay(100);
 
   // Heart Rate Sensor Initializing
   Serial.println("READY");
@@ -191,7 +221,7 @@ void loop()
     sensors_event_t temp; // create an empty event to be filled
     temperature_sensor.getEvent(&temp); //fill the empty event object with the current measurements
 
-    std::string json_data = "{\"heart_rate\": " + std::to_string(MAX30102._sHeartbeatSPO2.Heartbeat) + ", \"temperature\": " + std::to_string(temp.temperature) + "}";
+    std::string json_data = "{\"heart_rate\": " + std::to_string(MAX30102._sHeartbeatSPO2.Heartbeat) + ".00" + ", \"temperature\": " + std::to_string(temp.temperature) + "}";
 
     
     pCharacteristic -> setValue(json_data);
@@ -251,7 +281,8 @@ void loop()
     delay(1000);
   }*/
 
-  String command = Serial.readString();
+
+/*  String command = Serial.readString();
   command.trim();
 
   if(command == "hello"){
@@ -261,6 +292,6 @@ void loop()
   else{
     Serial.println(command);
     Serial.println("it doesn't work");
-  }
+  }*/
   
 }
