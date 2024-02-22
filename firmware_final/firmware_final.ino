@@ -9,7 +9,7 @@
 #include <DFRobot_RTU.h>
 #include <Wire.h>
 #define I2C_SDA 18
-#define I2C_SCL 19
+#define I2C_SCL 17
 
 // contact body temperature sensor libraries
 #include <Adafruit_TMP117.h>
@@ -77,6 +77,24 @@ const int touchpoint = 45;
 #define CHARACTERISTIC_UUID_TX "a333b197-f1a1-4d70-a452-757067b0bed6"
 #define CHARACTERISTIC_UUID_RX "a5953780-748b-4857-96ce-cf31a643aeb7"
 
+void sendPulse() {
+  Serial.println("Pulsing");
+  digitalWrite(touchpoint, HIGH);
+  delay(25);
+  digitalWrite(touchpoint, LOW);
+  delay(25);
+}
+
+void turnOnTouchpoint() {
+  sendPulse();
+}
+
+void turnOffTouchpoint() {
+  sendPulse();
+  sendPulse();
+  sendPulse();
+}
+
 // server connection
 class MyServerCallbacks: public BLEServerCallbacks{
   void onConnect(BLEServer* pServer){
@@ -114,7 +132,7 @@ class MyCallbacks: public BLECharacteristicCallbacks{
       else if(receivedValue.find("0") != -1)
       {
         // TURN OFF TOUCH POINT
-        turnoffTouchpoint();
+        turnOffTouchpoint();
         Serial.println("Received command 0");
         delay(2000);
       }
@@ -123,24 +141,6 @@ class MyCallbacks: public BLECharacteristicCallbacks{
     }
   }
 };
-
-void sendPulse() {
-  Serial.println("Pulsing");
-  digitalWrite(touchpoint, HIGH);
-  delay(25);
-  digitalWrite(touchpoint, LOW);
-  delay(25);
-}
-
-void turnOnTouchpoint() {
-  sendPulse();
-}
-
-void turnOffTouchpoint() {
-  sendPulse();
-  sendPulse();
-  sendPulse();
-}
 
 void setup()
 {
