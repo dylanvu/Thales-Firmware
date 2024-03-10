@@ -9,7 +9,7 @@
 #include <DFRobot_RTU.h>
 #include <Wire.h>
 #define I2C_SDA 18
-#define I2C_SCL 17
+#define I2C_SCL 19 // change to 17 for pcb
 
 // contact body temperature sensor libraries
 #include <Adafruit_TMP117.h>
@@ -70,29 +70,50 @@ bool oldDeviceConnected = false;
 Adafruit_TMP117  temperature_sensor;
 
 // touchpoint variables
-const int touchpoint = 45;
+const int touchpoint1 = 45;
+const int touchpoint2 = 46;
 
 // UUID 
 #define SERVICE_UUID        "af97994f-4d78-457e-8e10-05dd0ce6f680"
 #define CHARACTERISTIC_UUID_TX "a333b197-f1a1-4d70-a452-757067b0bed6"
 #define CHARACTERISTIC_UUID_RX "a5953780-748b-4857-96ce-cf31a643aeb7"
 
-void sendPulse() {
-  Serial.println("Pulsing");
-  digitalWrite(touchpoint, HIGH);
+void sendPulseTouchpoint1() {
+  Serial.println("Pulsing Touchpoint 1");
+
+  // first touchpoint
+  digitalWrite(touchpoint1, HIGH);
   delay(25);
-  digitalWrite(touchpoint, LOW);
+  digitalWrite(touchpoint1, LOW);
+  delay(25);
+}
+
+void sendPulseTouchpoint2() {
+  Serial.println("Pulsing Touchpoint 2");
+
+  // second touchpoint
+  digitalWrite(touchpoint2, HIGH);
+  delay(25);
+  digitalWrite(touchpoint2, LOW);
   delay(25);
 }
 
 void turnOnTouchpoint() {
-  sendPulse();
+  sendPulseTouchpoint1();
+  delay(1000); // 1 second delay
+  sendPulseTouchpoint2();
 }
 
 void turnOffTouchpoint() {
-  sendPulse();
-  sendPulse();
-  sendPulse();
+  sendPulseTouchpoint1();
+  sendPulseTouchpoint1();
+  sendPulseTouchpoint1();
+
+  delay(1000); // 1 second delay
+
+  sendPulseTouchpoint2();
+  sendPulseTouchpoint2();
+  sendPulseTouchpoint2();
 }
 
 // server connection
@@ -101,8 +122,9 @@ class MyServerCallbacks: public BLEServerCallbacks{
     deviceConnected = true;
   };
 
-  void onDisconnect(){
+  void onDisconnect(BLEServer *pServer){
     deviceConnected = false;
+    pServer -> getAdvertising() -> start();
   }
 };
 
@@ -180,7 +202,8 @@ void setup()
   Serial.println("Waiting...");
 
   // Touchpoint Initializing
-  pinMode(touchpoint, OUTPUT);
+  pinMode(touchpoint1, OUTPUT);
+  pinMode(touchpoint2, OUTPUT);
 
   // Heart Rate Sensor Initializing
   Serial.println("READY");
@@ -228,7 +251,7 @@ void loop()
     temperature_sensor.getEvent(&temp); //fill the empty event object with the current measurements
 
     std::string json_data = "{\"heart_rate\": " + std::to_string(MAX30102._sHeartbeatSPO2.Heartbeat) + ".00" + ", \"temperature\": " + std::to_string(temp.temperature) + "}";
-
+    Serial.println(json_data.c_str());
     
     pCharacteristic -> setValue(json_data);
     pCharacteristic -> notify();
@@ -248,6 +271,7 @@ void loop()
   // Connect
   if(deviceConnected && !oldDeviceConnected){
     oldDeviceConnected = deviceConnected;
+    Serial.println(oldDeviceConnected);
   }
   
 }
