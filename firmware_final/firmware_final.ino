@@ -8,8 +8,8 @@
 #include <DFRobot_BloodOxygen_S.h>
 #include <DFRobot_RTU.h>
 #include <Wire.h>
-#define I2C_SDA 18
-#define I2C_SCL 19 // change to 17 for pcb
+#define I2C_SDA 18 // change to 20 for pcb
+#define I2C_SCL 19 
 
 // contact body temperature sensor libraries
 #include <Adafruit_TMP117.h>
